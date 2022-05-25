@@ -20,8 +20,18 @@ controller = ISYatirimController()
 # Define worker
 # k = ThreadJob(main, event, 2)
 
+from flask import Flask
+
+app = Flask(__name__)
+
+
+@app.route('/')
+def hello():
+    return 'Hello, World!'
+
 
 # Start workers
 if __name__ == '__main__':
     # k.start()
     asyncio.run(controller.get_all_historical_data_async())
+    app.run(debug=False)
