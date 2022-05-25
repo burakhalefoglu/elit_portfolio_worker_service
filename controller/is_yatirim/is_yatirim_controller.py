@@ -13,15 +13,14 @@ class ISYatirimController:
     async def get_all_historical_data_async(self):
         for code in self.scraper.get_all_bist_company():
             today = datetime.now()
-            yesterday = today - timedelta(days=1)
             while True:
                 hist_data = self.is_yatirim_data_sources.get_all_bist_historical_data(code=code,
                                                                                       from_date_year=str(
-                                                                                          yesterday.year),
+                                                                                          today.year),
                                                                                       from_date_month=date_obj_to_str(
-                                                                                          yesterday.month),
+                                                                                          today.month),
                                                                                       from_date_day=date_obj_to_str(
-                                                                                          yesterday.day),
+                                                                                          today.day),
                                                                                       from_date_hour="09",
                                                                                       from_date_minute="00",
 
@@ -35,10 +34,11 @@ class ISYatirimController:
                 min_date = datetime(2012, 9, 14, 9, 0)
                 if today < min_date:
                     break
-                today = today - timedelta(days=1)
-                yesterday = yesterday - timedelta(days=1)
+
                 await self.bist_securities_hist_services.save_historical_data_async(code=code,
+                                                                                    date=today,
                                                                                     data=hist_data)
+                today = today - timedelta(days=1)
 
 
 def date_obj_to_str(element: int) -> str:

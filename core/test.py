@@ -19,15 +19,15 @@ bist_service = BistSecuritiesHistoricalService()
 #     bist_service.save_historical_data_async(i, d)
 
 today = datetime.now()
-yesterday = today - timedelta(days=1)
+
 while True:
     hist_data = isyatirim_historical_datas.get_all_bist_historical_data(code="AEFES",
                                                                         from_date_year=str(
-                                                                            yesterday.year),
+                                                                            today.year),
                                                                         from_date_month=date_obj_to_str(
-                                                                            yesterday.month),
+                                                                            today.month),
                                                                         from_date_day=date_obj_to_str(
-                                                                            yesterday.day),
+                                                                            today.day),
                                                                         from_date_hour="09",
                                                                         from_date_minute="00",
 
@@ -41,11 +41,12 @@ while True:
     min_date = datetime(2012, 9, 14, 9, 0)
     if today < min_date:
         break
-    today = today - timedelta(days=1)
-    yesterday = yesterday - timedelta(days=1)
+
     if len(hist_data) == 0:
+        # log to csv
         continue
+
     asyncio.run(bist_service.save_historical_data_async(code="AEFES",
                                                         data=hist_data))
+    today = today - timedelta(days=1)
 
-asyncio.run(bist_service.save_historical_data_async(code="AEFES", data=hist_data))
