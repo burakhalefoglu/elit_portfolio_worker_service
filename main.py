@@ -1,4 +1,5 @@
 import pyximport
+from rq import Worker, Queue
 
 from core.cross_cutting_concerns.logger.logger import init_debug_log, init_inform_log
 
@@ -19,9 +20,10 @@ controller = ISYatirimController()
 
 # Define worker
 # k = ThreadJob(main, event, 2)
-
+listen = ['high']
 
 # Start workers
 if __name__ == '__main__':
-    # k.start()
     asyncio.run(controller.get_all_historical_data_async())
+    worker = Worker(map(Queue, listen))
+    worker.work()
