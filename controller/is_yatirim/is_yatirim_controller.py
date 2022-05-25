@@ -11,6 +11,7 @@ class ISYatirimController:
     bist_securities_hist_services = BistSecuritiesHistoricalService()
 
     async def get_all_historical_data_async(self):
+        min_date = datetime(2012, 9, 14, 9, 0)
         for code in self.scraper.get_all_bist_company():
             today = datetime.now()
             while True:
@@ -23,7 +24,6 @@ class ISYatirimController:
                                                                                           today.day),
                                                                                       from_date_hour="09",
                                                                                       from_date_minute="00",
-
                                                                                       to_date_year=str(today.year),
                                                                                       to_month=date_obj_to_str(
                                                                                           today.month),
@@ -31,10 +31,8 @@ class ISYatirimController:
                                                                                       to_hour="23",
                                                                                       to_minute="59"
                                                                                       )
-                min_date = datetime(2012, 9, 14, 9, 0)
                 if today < min_date:
                     break
-
                 await self.bist_securities_hist_services.save_historical_data_async(code=code,
                                                                                     date=today,
                                                                                     data=hist_data)
@@ -42,6 +40,6 @@ class ISYatirimController:
 
 
 def date_obj_to_str(element: int) -> str:
-    if element < 9:
+    if element <= 9:
         return "0" + str(element)
     return str(element)
