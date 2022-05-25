@@ -24,7 +24,7 @@ class BistSecuritiesHistoricalService:
                 value=data_value,
                 date=date_time_turkey)
             historical_data.append(bist_historical_data.__dict__)
-        if historical_data is [] or len(data) <= 5:
+        if historical_data is [] or len(data) <= 10:
             raise Exception(str({"code": code, "date": date, "weekday": str(date.weekday()), "data": data}))
 
         historical_data_pd = pd.DataFrame(historical_data, columns=["code", "value", "date"])
