@@ -2,10 +2,10 @@ import datetime
 from typing import List, Any
 
 import pandas as pd
+from repository.mongodb.mongodb_dal import MongodbDal
 
 from core.aspects.exception.exception_aspect import exception_aspect
 from model.bist_historical_data import BistHistoricalData
-from repository.databases.mongodb.mongodb_dal import MongodbDal
 
 
 class BistSecuritiesHistoricalService:

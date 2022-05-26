@@ -1,21 +1,37 @@
+import queue
 import threading
+import time
 
 
-class ThreadJob(threading.Thread):
-    def __init__(self, callback, event, interval):
-        """runs the callback function after interval seconds
+class ThreadJob:
+    # The queue for tasks
+    q = queue.Queue()
 
-        :param callback:  callback function to invoke
-        :param event: external event for controlling the update operation
-        :param interval: time in seconds after which are required to fire the callback
-        :type callback: function
-        :type interval: int
-        """
-        self.callback = callback
-        self.event = event
-        self.interval = interval
-        super(ThreadJob, self).__init__()
+    # Worker, handles each task
+    def worker(self):
+        while True:
+            item = self.q.get()
+            if item is None:
+                break
+            print("Working on", item)
+            time.sleep(1)
+            self.q.task_done()
 
-    def run(self):
-        while not self.event.wait(self.interval):
-            self.callback()
+    def start_workers(self, worker_pool=1000):
+        threads = []
+        for i in range(worker_pool):
+            t = threading.Thread(target=self.worker)
+            t.start()
+            threads.append(t)
+        return threads
+
+    def stop_workers(self, threads):
+        # stop workers
+        for i in threads:
+            self.q.put(None)
+        for t in threads:
+            t.join()
+
+    def create_queue(self, task_items):
+        for item in task_items:
+            self.q.put(item)

@@ -1,29 +1,25 @@
-import pyximport
-from rq import Worker, Queue
+import asyncio
 
-from core.cross_cutting_concerns.logger.logger import init_debug_log, init_inform_log
+import pyximport
 
 pyximport.install()
-import asyncio
-import threading
 
+from core.cross_cutting_concerns.logger.logger import init_inform_log, init_debug_log
+from core.libraries.scraper.scraper import ScraperApi
 from controller.is_yatirim.is_yatirim_controller import ISYatirimController
 
 init_inform_log()
 init_debug_log()
 
-# from core.utilities.toolkit.thread_job import ThreadJob
-event = threading.Event()
-
-# Workers
+scrapers = ScraperApi()
 controller = ISYatirimController()
 
-# Define worker
-# k = ThreadJob(main, event, 2)
-listen = ['high']
 
-# Start workers
-if __name__ == '__main__':
-    asyncio.run(controller.get_all_historical_data_async())
-    worker = Worker(map(Queue, listen))
-    worker.work()
+async def main():
+    tasks = [asyncio.create_task(controller.get_all_historical_data_async(code))
+             for code in scrapers.get_all_bist_company()]
+    await asyncio.gather(*tasks)
+
+
+if __name__ == "__main__":
+    asyncio.run(main())
