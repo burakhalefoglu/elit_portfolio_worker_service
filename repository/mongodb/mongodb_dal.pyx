@@ -9,7 +9,7 @@ cdef str mongodb_connection = os.getenv('MONGODB')
 
 cdef class MongodbDal:
     client = motor.motor_asyncio.AsyncIOMotorClient(mongodb_connection)
-    db = client.get_default_database()
+    db = client["elitdb"]
 
     async def get_transaction_session_async(self):
         return await self.client.start_session()

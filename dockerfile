@@ -28,4 +28,4 @@ RUN apt-get update -y
 
 RUN apt-get install gcc -y
 
-CMD [ "python","main.py" ]
+ENTRYPOINT [ "python","main.py" ]
