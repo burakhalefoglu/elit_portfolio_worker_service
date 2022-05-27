@@ -28,11 +28,9 @@ cdef class MongodbDal:
         await col.insert_many(models)
 
     async def get_all_with_client_id_async(self, str table, str client_id):
-        models = []
         col = self.db[table]
-        for x in await col.find({"client_id": client_id, "status": True}):
-            models.append(x)
-        return models
+        cursor = col.find({"client_id": client_id, "status": True})
+        return await cursor.to_list(length=1000)
 
     async def get_by_id_async(self, str table, str _id, str client_id):
         col = self.db[table]
@@ -41,11 +39,9 @@ cdef class MongodbDal:
         return model
 
     async def get_all_async(self, str table):
-        models = []
         col = self.db[table]
-        for x in await col.find({"status": True}):
-            models.append(x)
-        return models
+        cursor = col.find({"status": True})
+        return await cursor.to_list(length=1000)
 
     async def get_by_filter_async(self, str table, dict filters):
         self.__reformat_id_if_exist(filters)
@@ -56,8 +52,8 @@ cdef class MongodbDal:
     async def get_list_by_filter_async(self, str table, dict filters):
         self.__reformat_id_if_exist(filters)
         col = self.db[table]
-        model = await col.find(filters)
-        return model
+        cursor = col.find(filters)
+        return await cursor.to_list(length=1000)
 
     async def update_async(self, str table, dict query, dict new_value):
         self.__reformat_id_if_exist(query)

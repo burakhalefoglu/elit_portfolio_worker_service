@@ -10,42 +10,48 @@ class ISYatirimController:
     bist_securities_hist_services = BistSecuritiesHistoricalService()
 
     @exception_aspect
-    async def get_all_historical_data_async(self, code: str):
-        min_date = datetime(2012, 9, 14, 9, 0)
+    async def get_all_historical_data_async(self, table: str,
+                                            query: str,
+                                            code: str,
+                                            min_data_year: int,
+                                            min_data_mount: int):
+        min_date = datetime(year=min_data_year, month=min_data_mount, day=1)
         today = datetime.now()
-        counter = 0
+        count = 0
         while True:
-            hist_data = self.is_yatirim_data_sources.get_all_bist_historical_data(code=code,
-                                                                                  from_date_year=str(
-                                                                                      today.year),
-                                                                                  from_date_month=date_obj_to_str(
-                                                                                      today.month),
-                                                                                  from_date_day=date_obj_to_str(
-                                                                                      today.day),
-                                                                                  from_date_hour="09",
-                                                                                  from_date_minute="00",
-                                                                                  to_date_year=str(today.year),
-                                                                                  to_month=date_obj_to_str(
-                                                                                      today.month),
-                                                                                  to_day=date_obj_to_str(today.day),
-                                                                                  to_hour="23",
-                                                                                  to_minute="59"
-                                                                                  )
+            hist_data = self.is_yatirim_data_sources.get_isyatirim_from_to_historical_datas(code=code,
+                                                                                            query=query,
+                                                                                            from_date_year=str(
+                                                                                                today.year),
+                                                                                            from_date_month=date_obj_to_str(
+                                                                                                today.month),
+                                                                                            from_date_day=date_obj_to_str(
+                                                                                                today.day),
+                                                                                            from_date_hour="00",
+                                                                                            from_date_minute="00",
+                                                                                            to_date_year=str(
+                                                                                                today.year),
+                                                                                            to_month=date_obj_to_str(
+                                                                                                today.month),
+                                                                                            to_day=date_obj_to_str(
+                                                                                                today.day),
+                                                                                            to_hour="23",
+                                                                                            to_minute="59"
+                                                                                            )
             if today < min_date:
                 break
-            if len(hist_data) <= 5:
-                counter = counter + 1
-            else:
-                counter = 0
-
-            if counter >= 20:
-                raise Exception(str({"code": code, "resaon": "üst üste çok veri yok"}))
-
-            await self.bist_securities_hist_services.save_historical_data_async(code=code,
-                                                                                date=today,
-                                                                                data=hist_data)
+            print("code", code, hist_data)
+            result = await self.bist_securities_hist_services.save_historical_data_async(table=table,
+                                                                                         code=code,
+                                                                                         date=today,
+                                                                                         data=hist_data)
+            if result != {}:
+                count = count + 1
+                result["count"] = count
+                await self.bist_securities_hist_services.save_last_stayed("last_date_with_codes", result)
 
             today = today - timedelta(days=1)
+        count = 0
 
 
 def date_obj_to_str(element: int) -> str:
