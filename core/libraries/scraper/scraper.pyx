@@ -3,14 +3,18 @@ import pandas as pd
 from core.libraries.investpy.resources.resources import get_resources_path
 
 cdef class ScraperApi:
-    def get_all_bist_company(self):
+    def get_all_bist_company(self, filter_code: str):
         table_bist_sirketler = pd.read_html('https://www.isyatirim.com.tr/tr-tr/analiz/hisse/Sayfalar/default.aspx')
         cdef list bist = []
         cdef list bist_tum_sirketler_list = table_bist_sirketler[2]["Hisse"].tolist()
         for string in bist_tum_sirketler_list:
             new_string = string.replace('\u200b', '').replace('\n', '').replace(' ', '')
             bist.append(new_string)
-        return bist
+        filtered = []
+        for f in bist:
+            if f.startswith(filter_code):
+                filtered.append(f)
+        return filtered
 
     def get_us_sp_500_companies_codes_and_names(self):
         table_sp_500_sirketler = pd.read_html('https://en.wikipedia.org/wiki/List_of_S%26P_500_companies')

@@ -1,4 +1,5 @@
 import asyncio
+import sys
 
 import pyximport
 
@@ -15,9 +16,9 @@ scrapers = ScraperApi()
 controller = ISYatirimController()
 
 
-async def main():
+async def main(arg: str):
     # Bist
-    for code in scrapers.get_all_bist_company():
+    for code in scrapers.get_all_bist_company(arg):
         await controller.get_all_historical_data_async("bist_securities_hist_data",
                                                        ".E.BIST",
                                                        code,
@@ -49,4 +50,4 @@ async def main():
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    asyncio.run(main(str(sys.argv[1])))
