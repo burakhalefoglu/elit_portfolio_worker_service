@@ -1,15 +1,9 @@
-"""tefas SecuritiesMutualFundsCrawler
-
-Crawls public invenstment fund information from Turkey Electronic Fund Trading Platform.
-"""
-
 from datetime import datetime
 from typing import Dict, List, Optional, Union
 
 import pandas as pd
 import requests
 
-from core.libraries.tefas.cache.inmemorycache import get_from_cache, set_cache
 from core.libraries.tefas.schemas import InfoSchema, BreakdownSchema, \
     ComparisonManagementFeedsSchema, \
     ComparisonFundSizesSchema, \
@@ -17,28 +11,6 @@ from core.libraries.tefas.schemas import InfoSchema, BreakdownSchema, \
 
 
 class SecuritiesMutualFundsCrawler:
-    """Fetch public fund information from ``https://www.tefas.gov.tr or http://www.fundturkey.com.tr``.
-
-    Examples:
-
-    >>> tefas = SecuritiesMutualFundsCrawler()
-    >>> data = tefas.fetch(start="2020-11-20")
-    >>> data.head(1)
-           price  number_of_shares code  ... precious_metals  stock  private_sector_bond
-    0  41.302235         1898223.0  AAK  ...             0.0  31.14                 3.28
-    >>> data = tefas.fetch(name="YAC",
-    >>>                    start="2020-11-15",
-    >>>                    end="2020-11-20",
-    >>>                    columns=["date", "code", "price"])
-    >>> data.head()
-             date code     price
-    0  2020-11-20  YAC  1.844274
-    1  2020-11-19  YAC  1.838618
-    2  2020-11-18  YAC  1.833198
-    3  2020-11-17  YAC  1.838440
-    4  2020-11-16  YAC  1.827832
-    """
-
     root_url = "http://www.fundturkey.com.tr"
     detail_endpoint = "/api/DB/BindHistoryAllocation"
     info_endpoint = "/api/DB/BindHistoryInfo"
@@ -91,12 +63,6 @@ class SecuritiesMutualFundsCrawler:
             "fonkod": name.upper() if name else "",
         }
 
-        # ask from cache
-        key = str(data) + "fetch_historical_data"
-        result = get_from_cache(key)
-        if len(result.index) > 0:
-            return result
-
         # General info pane
         info_schema = InfoSchema(many=True)
         info = self._do_post(self.info_endpoint, "/TarihselVeriler.aspx", data)
@@ -115,7 +81,6 @@ class SecuritiesMutualFundsCrawler:
 
         # Return only desired columns
         merged = merged[columns] if columns else merged
-        set_cache(key, merged)
         return merged
 
     def fetch_comparison_return_data(self,
@@ -148,12 +113,6 @@ class SecuritiesMutualFundsCrawler:
             "bastarih": start_date,
             "bittarih": end_date, }
 
-        # ask from cache
-        key = str(data) + "fetch_comparison_return_data"
-        result = get_from_cache(key)
-        if len(result.index) > 0:
-            return result
-
         # comparison fund return pane
         comparison_return_schema = ComparisonFundReturnSchema(many=True)
         comparison_return = self._do_post(
@@ -163,14 +122,13 @@ class SecuritiesMutualFundsCrawler:
             comparison_return, columns=comparison_return_schema.fields.keys())
 
         result_data = comparison_return[columns] if columns else comparison_return
-        set_cache(key, result_data)
         return result_data
 
     def fetch_comparison_management_feeds_data(self,
                                                umbrella_fund_type: Optional[str] = None,
                                                fund_title_type: Optional[str] = None,
                                                columns: Optional[List[str]
-                                                                 ] = None,
+                                               ] = None,
                                                ) -> pd.DataFrame:
 
         data = {
@@ -182,12 +140,6 @@ class SecuritiesMutualFundsCrawler:
             "fonunvantip": fund_title_type,
             "islemdurum": "", }
 
-        # ask from cache
-        key = str(data) + "fetch_comparison_management_feeds_data"
-        result = get_from_cache(key)
-        if len(result.index) > 0:
-            return result
-
         # comparison management feeds pane
         comparison_management_feeds_schema = ComparisonManagementFeedsSchema(
             many=True)
@@ -198,7 +150,6 @@ class SecuritiesMutualFundsCrawler:
         comparison_management_feeds = pd.DataFrame(comparison_management_feeds,
                                                    columns=comparison_management_feeds_schema.fields.keys())
         result_data = comparison_management_feeds[columns] if columns else comparison_management_feeds
-        set_cache(key, result_data)
         return result_data
 
     def fetch_comparison_fund_sizes_data(self,
@@ -223,13 +174,7 @@ class SecuritiesMutualFundsCrawler:
             "fonturkod": "",
             "fonunvantip": fund_title_type,
             "strperiod": "1,1,1,1,1,1,1",
-            "islemdurum": "", }
-
-        # ask from cache
-        key = str(data) + "fetch_comparison_fund_sizes_data"
-        result = get_from_cache(key)
-        if len(result.index) > 0:
-            return result
+            "islemdurum": ""}
 
         # comparison fund sizes pane
         comparison_fund_sizes_schema = ComparisonFundSizesSchema(many=True)
@@ -240,7 +185,6 @@ class SecuritiesMutualFundsCrawler:
         comparison_fund_sizes = pd.DataFrame(comparison_fund_sizes,
                                              columns=comparison_fund_sizes_schema.fields.keys())
         result_data = comparison_fund_sizes[columns] if columns else comparison_fund_sizes
-        set_cache(key, result_data)
         return result_data
 
     def _do_post(self, endpoint: str, referer: str, data: Dict[str, str]) -> Dict[str, str]:
