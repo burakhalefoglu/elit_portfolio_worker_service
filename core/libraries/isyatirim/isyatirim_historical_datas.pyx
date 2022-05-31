@@ -1,7 +1,7 @@
 import requests
 
 cdef class IsYatirimHistoricalData:
-    def get_isyatirim_from_to_historical_datas(self, str code,
+    async def get_isyatirim_from_to_historical_datas(self, str code,
                                                str query,
                                                str from_date_year,
                                                str from_date_month,

@@ -7,7 +7,7 @@ import lxml
 
 class IsYatirimEmtia:
 
-    def get_emtias_name_and_codes(self) -> pd.DataFrame:
+    async def get_emtias_name_and_codes(self) -> pd.DataFrame:
         source = "https://www.isyatirim.com.tr/_layouts/15/Isyatirim.Website/Common/Data.aspx/OneEndeks?endeks="
         emtia_list = ['XAU/USD', 'XAG/USD', 'BRENT', 'XPD/USD', 'XPT/USD']
         emtia_data_list = []
@@ -23,7 +23,7 @@ class IsYatirimEmtia:
         pd.set_option('display.precision', 16)
         return df[['code', 'title', 'weight_type']]
 
-    def get_emtia_price(self, code: str):
+    async def get_emtia_price(self, code: str):
         source = "https://www.isyatirim.com.tr/_layouts/15/Isyatirim.Website/Common/Data.aspx/OneEndeks?endeks="
         r = requests.get(source + code)
         emtia_data_price = r.json()[0]['last']
@@ -35,7 +35,7 @@ class IsYatirimEmtia:
 
 
 
-    def __get_usd_tl_currency(self):
+    async def __get_usd_tl_currency(self):
        source = "https://www.isyatirim.com.tr/_layouts/15/Isyatirim.Website/Common/Data.aspx/OneEndeks?endeks="
        code =  'USD/TRL' 
        r = requests.get(source + code)
@@ -44,7 +44,7 @@ class IsYatirimEmtia:
        pd.set_option('display.precision', 16)
        return usd_tl_price
 
-    def get_current_gold_usd_price(self):
+    async def get_current_gold_usd_price(self):
         source = "https://www.isyatirim.com.tr/_layouts/15/Isyatirim.Website/Common/Data.aspx/OneEndeks?endeks="
         code = "XAU/USD"
         r = requests.get(source + code)
@@ -54,7 +54,7 @@ class IsYatirimEmtia:
         return gold_price
 
 
-    def get_current_siver_usd_price(self):
+    async def get_current_siver_usd_price(self):
         source = "https://www.isyatirim.com.tr/_layouts/15/Isyatirim.Website/Common/Data.aspx/OneEndeks?endeks="
         code = "XAG/USD"
         r = requests.get(source + code)

@@ -285,7 +285,7 @@ def get_stock_recent_data(
         (stocks["symbol"].apply(unidecode).str.lower() == stock).idxmax(), "symbol"
     ]
     id_ = stocks.loc[
-        (stocks["symbol"].apply(unidecode).str.lower() == stock).idxmax(), "deposit_id"
+        (stocks["symbol"].apply(unidecode).str.lower() == stock).idxmax(), "id"
     ]
     name = stocks.loc[
         (stocks["symbol"].apply(unidecode).str.lower() == stock).idxmax(), "name"
@@ -325,7 +325,7 @@ def get_stock_recent_data(
         )
 
     root_ = fromstring(req.text)
-    path_ = root_.xpath(".//table[@deposit_id='curr_table']/tbody/tr")
+    path_ = root_.xpath(".//table[@id='curr_table']/tbody/tr")
 
     result = list()
 
@@ -602,7 +602,7 @@ def get_stock_historical_data(
         (stocks["symbol"].apply(unidecode).str.lower() == stock).idxmax(), "symbol"
     ]
     id_ = stocks.loc[
-        (stocks["symbol"].apply(unidecode).str.lower() == stock).idxmax(), "deposit_id"
+        (stocks["symbol"].apply(unidecode).str.lower() == stock).idxmax(), "id"
     ]
     name = stocks.loc[
         (stocks["symbol"].apply(unidecode).str.lower() == stock).idxmax(), "name"
@@ -652,7 +652,7 @@ def get_stock_historical_data(
             continue
 
         root_ = fromstring(req.text)
-        path_ = root_.xpath(".//table[@deposit_id='curr_table']/tbody/tr")
+        path_ = root_.xpath(".//table[@id='curr_table']/tbody/tr")
 
         result = list()
 
@@ -917,7 +917,7 @@ def get_stock_company_profile(stock, country="spain", language="english"):
 
         root_ = fromstring(req.text)
 
-        path_ = root_.xpath('.//*[@deposit_id="profile-fullStory-showhide"]')
+        path_ = root_.xpath('.//*[@id="profile-fullStory-showhide"]')
 
         if path_:
             company_profile["desc"] = str(path_[0].text_content())
@@ -1011,13 +1011,13 @@ def get_stock_dividends(stock, country):
         )
 
     root_ = fromstring(req.text)
-    path_ = root_.xpath(".//table[contains(@deposit_id, 'dividendsHistoryData')]")
+    path_ = root_.xpath(".//table[contains(@id, 'dividendsHistoryData')]")
 
     if path_:
-        more_results_id = path_[0].get("deposit_id").replace("dividendsHistoryData", "")
+        more_results_id = path_[0].get("id").replace("dividendsHistoryData", "")
 
         path_ = root_.xpath(
-            ".//table[@deposit_id='dividendsHistoryData" + str(more_results_id) + "']/tbody/tr"
+            ".//table[@id='dividendsHistoryData" + str(more_results_id) + "']/tbody/tr"
         )
 
         objs = list()
@@ -1448,13 +1448,13 @@ def get_stocks_overview(country, as_json=False, n_results=100):
         )
 
     root_ = fromstring(req.text)
-    table = root_.xpath(".//table[@deposit_id='cross_rate_markets_stocks_1']/tbody/tr")
+    table = root_.xpath(".//table[@id='cross_rate_markets_stocks_1']/tbody/tr")
 
     results = list()
 
     if len(table) > 0:
         for row in table[:n_results]:
-            id_ = row.get("deposit_id").replace("pair_", "")
+            id_ = row.get("id").replace("pair_", "")
             country_check = (
                 row.xpath(".//td[@class='flag']/span")[0].get("title").lower()
             )
@@ -1637,7 +1637,7 @@ def get_stock_financial_summary(
         )
 
     id_ = stocks.loc[
-        (stocks["symbol"].apply(unidecode).str.lower() == stock).idxmax(), "deposit_id"
+        (stocks["symbol"].apply(unidecode).str.lower() == stock).idxmax(), "id"
     ]
 
     headers = {
@@ -1746,7 +1746,7 @@ def search_stocks(by, value):
     if stocks is None:
         raise IOError("ERR#0001: stocks object not found or unable to retrieve.")
 
-    stocks.drop(columns=["tag", "deposit_id"], inplace=True)
+    stocks.drop(columns=["tag", "id"], inplace=True)
 
     available_search_fields = stocks.columns.tolist()
 

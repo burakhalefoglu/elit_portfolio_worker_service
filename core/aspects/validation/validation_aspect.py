@@ -18,11 +18,18 @@ def validation_aspect(func, schema: dict):
     @wraps(func)
     async def wrapper(*args, **kwargs):
         params = {}
+
         for key in kwargs:
             if type(kwargs[key]) == schema['type']:
                 for field in kwargs[key].__dataclass_fields__:
                     value = getattr(kwargs[key], field)
                     params[field] = value
+        for arg in args:
+            if type(arg) == schema['type']:
+                for field in arg.__dataclass_fields__:
+                    value = getattr(arg, field)
+                    params[field] = value
+
         v = Validator(schema['rules'])
         if v.validate(params) is False:
             raise ValidationException((str(v.errors)))

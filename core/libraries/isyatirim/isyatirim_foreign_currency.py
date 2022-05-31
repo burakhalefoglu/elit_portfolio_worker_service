@@ -7,7 +7,7 @@ import lxml
 class IsYatirimForeignCurrency:
 
 
-    def __convert_currency_each_other(self, currency_data):
+    async def __convert_currency_each_other(self, currency_data):
         currency_split = currency_data['c'].split('/')
         currency_convert_data = {}
         currency_convert_data['c'] = "{codelast}/{codefirst}".format(codelast=currency_split[1], codefirst=currency_split[0])
@@ -17,7 +17,7 @@ class IsYatirimForeignCurrency:
         return currency_convert_data
 
 
-    def __get_all_current_foreign_currency(self):
+    async def __get_all_current_foreign_currency(self):
 
         source = 'https://www.isyatirim.com.tr/_layouts/15/Isyatirim.Website/Common/Data.aspx/OneEndeks?endeks='
         currency_with_usd_code_list = [ 'USD/RUB', 'USD/CAD', 'USD/KWD', 'USD/BRL', 'USD/NOK', 'USD/COP', 'USD/CNH', 'USD/UYU',

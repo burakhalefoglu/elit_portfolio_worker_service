@@ -1,12 +1,14 @@
 from fastapi import Request, HTTPException
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from kink import inject
 
-from core.utilities.ioc.punq.punq_module import PunqCoreModule
 from core.utilities.secrities.i_jwt_helper import IJWTHelper
 
 
+@inject
 class JWTBearer(HTTPBearer):
-    def __init__(self):
+    def __init__(self, jwt_helper: IJWTHelper):
+        self.jwt_helper = jwt_helper
         super(JWTBearer, self).__init__(auto_error=True)
 
     async def __call__(self, request: Request):
@@ -23,8 +25,7 @@ class JWTBearer(HTTPBearer):
     def verify_jwt(self, jwtoken: str) -> bool:
         is_token_valid: bool = False
         try:
-            jwt_helper = PunqCoreModule.resolve_dependency(IJWTHelper)
-            payload = jwt_helper.validate_token(jwtoken)
+            payload = self.jwt_helper.validate_token(jwtoken)
         except:
             payload = None
         if payload:

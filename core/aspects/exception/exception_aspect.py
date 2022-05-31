@@ -16,7 +16,17 @@ def exception_aspect(func):
     async def wrapper(*args, **kwargs):
         try:
             return await func(*args, **kwargs)
+        except ValidationException as e:
+            return ErrorResult(e.message, status_code=400)
+
+        except UnauthorizedAccessException as e:
+            return ErrorResult(e.message, status_code=401)
+
+        except SecurityException as e:
+            return ErrorResult(e.message, status_code=403)
+
         except Exception as e:
             debug_logger.error(str(e), exc_info=True)
             return ErrorResult(DefaultErrorMessage)
+            # return ErrorResult(str(e))
     return wrapper
