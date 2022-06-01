@@ -17,3 +17,10 @@ class CmcScraperCryptoApi:
 
         df = scraper.get_dataframe()
         return df.iloc[0]
+
+
+    async def get_crypto_currency_all_time(self, code: str) -> pd.DataFrame:
+        scraper = CmcScraper(code,fiat="TRY",all_time=True)
+        df = scraper.get_dataframe()
+        return df
+
